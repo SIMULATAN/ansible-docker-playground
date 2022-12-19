@@ -1,0 +1,4 @@
+- hosts: wmdnsservers
+  tasks:
+    - name: Change nameservers
+      shell: echo 'nameserver 172.20.15.11' >> /etc/resolv.conf

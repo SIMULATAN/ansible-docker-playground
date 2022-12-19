@@ -1,0 +1,10 @@
+FROM debian
+
+COPY id_rsa.pub /root/.ssh/authorized_keys
+RUN chmod 400 /root/.ssh/authorized_keys
+
+RUN apt update
+RUN apt install openssh-server python3 -y
+RUN mkdir /var/run/sshd
+
+ENTRYPOINT echo "My hostname is $(hostname)" && /usr/sbin/sshd -D -e

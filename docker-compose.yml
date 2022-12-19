@@ -1,26 +1,62 @@
 version: "3.8"
 services:
   ansible:
-    image: shellwhale/ansible
     hostname: ansible
     tty: true
+    networks:
+      - containers
     volumes:
       - ./shared-folder:/shared-folder
     build:
       context: .
       dockerfile: Dockerfile.ansible
   web:
-    hostname: web
     ports:
-      - "999:999"
-    image: shellwhale/centos
+      - "5001-5005:999"
+    networks:
+      - containers
     build:
       context: .
-      dockerfile: Dockerfile.centos
+      dockerfile: Dockerfile.debian
+    deploy:
+      replicas: 5
+
   db:
     hostname: db
-    image: shellwhale/centos
+    networks:
+      - containers
     build:
       context: .
-      dockerfile: Dockerfile.centos
-      
+      dockerfile: Dockerfile.alpine
+
+  whatsmydns:
+    hostname: wmdns
+    ports:
+      - 5000:7878
+    networks:
+      - containers
+    build:
+      context: .
+      dockerfile: Dockerfile.whatsmydns
+
+  nameserver:
+    hostname: nserver
+    image: coredns/coredns
+    ports:
+      - 53/udp
+      - 53/tcp
+    volumes:
+      - ./dns-data:/dns
+    networks:
+      containers:
+        ipv4_address: 172.20.15.11
+    command:
+      - --conf=/dns/Corefile
+
+networks:
+  containers:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.15.0/24
+          ip_range: 172.20.15.0/24

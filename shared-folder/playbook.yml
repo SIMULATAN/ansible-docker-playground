@@ -4,33 +4,26 @@
       server_name: "web"
       message: "Hello world"
   tasks:
-    - name: Install httpd
+    - name: Install nginx
       package:
-        name: httpd
+        name: nginx
         state: present
 
-    - name: Start the httpd server
-      shell: /usr/sbin/httpd
+    - name: (Re)start the nginx server
+      shell: pkill nginx; pwait nginx; nginx
 
-    - name: Template a file to /etc/file.conf
+    - name: Copy nginx config
       template:
-        src: templates/httpd.conf.j2
-        dest: /etc/httpd/conf/httpd.conf
+        src: templates/nginx.conf.j2
+        dest: /etc/nginx/conf.d/default.conf
       notify:
-        - Restart the httpd server
+        - Restart the nginx server
 
     - name: Add the index.html
       template:
         src: templates/index.html.j2
-        dest: /usr/share/httpd/noindex/index.html
+        dest: /usr/share/nginx/html/index.html
 
   handlers:
-    - name: Restart the httpd server
-      shell: pkill httpd && /usr/sbin/httpd
-
-- hosts: dbservers
-  tasks:
-    - name: Install mariadb-server
-      yum:
-        name: mariadb-server
-        state: present
+    - name: Restart the nginx server
+      shell: pkill nginx; pwait nginx; nginx

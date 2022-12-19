@@ -1,0 +1,11 @@
+my-company.com:53 {
+    file /dns/db.my-company.com
+    log
+    errors
+}
+
+.:53 {
+    log
+    errors
+    cache
+}
